@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8' name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+	<title>bootstrap</title>
+	<link rel="stylesheet" href="https://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+	<style type="text/css">
+		html,body{margin:0px;padding:0px;}
+		.bgColor{background: #000000;}
+	</style>
+</head>
+<body>
+	<div class='container' style='width:100%;'>
+		<div class='row'>
+			<div id='show' class='col-sm-12 col-xs-12 col-md-12'>
+
+			</div>
+			<ul class='pagination' id='lbnid'>
+
+			</ul>
+		</div>
+	</div>
+
+</body>
+<script type="text/javascript" src='https://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js'></script>
+<script type="text/javascript">
+window.onload=function(){
+	start();
+}
+function start(){
+	$.ajax({
+        url:"bootstrap.php",
+        async:"true",
+        type:"GET",
+        dataType:"json",
+        data:"page=0",
+        success:function(msg){
+	        if(msg){
+	         	var obj=msg[0].all;
+	            startIndex(obj);
+	            pagIng(obj);
+	        }
+        },
+        error:function(){
+            alert("出现错误");
+        }
+    });
+}
+
+//添加元素
+function addElement(Document,ElementName,ElementText,ClassName){
+	var div=document.createElement(ElementName);
+	div.innerHTML=ElementText;
+	div.className=ClassName;
+	Document.appendChild(div);
+}
+// 第一页信息展示
+function startIndex(obj){
+	var Document,//获取divID
+	ElementName='div',//添加div子元素
+	ElementText,//子元素里面的内容添加
+	ClassName='col-sm-4 col-xs-4 col-md-4',//动态添加子元素div的样式
+	paging=9;//每一页信息展示的个数限制
+
+	Document=document.getElementById('show');
+	for(var i=0;i<paging;i++){
+		ElementText="<div>名称："+obj[i].name+",年龄："+obj[i].age+"</div>";
+		addElement(Document,ElementName,ElementText,ClassName);
+	}
+}
+//使用bootstrap样式这个函数就不需要修改
+function pagIng(obj){
+	var cycleLength,Document,paging=9,ElementText,ClassName;
+	if(obj.length%paging>0){
+	    cycleLength=Math.ceil(obj.length/paging);
+	}else{
+	    cycleLength=Math.floor(obj.length/paging);
+	}
+	Document=document.getElementById('lbnid');
+	var up="<a href='javascript:void(0)'>上一页</a>";
+	addElement(Document,'li',up,'bgColor');
+	for(var i=1;i<=cycleLength;i++){
+		ElementText="<a href='javascript:void(0)'>"+i+"</a>";
+		addElement(Document,'li',ElementText,'bgColor');
+	}
+	var down="<a href='javascript:void(0)'>下一页</a>";
+	addElement(Document,'li',down,'bgColor');
+	var nodes=document.getElementById('lbnid').getElementsByTagName('li');
+	var flag=1;
+	//分页的其他信息
+    for(var i=0;i<nodes.length;i++){
+        (function(i){
+            nodes[i].onclick=function(){
+                var clickNum=document.getElementById('lbnid').getElementsByTagName('li')[i].innerText;
+                if(clickNum=='上一页'){
+                	flag>1?--flag:flag;
+                	infoUpdate(obj,flag,paging);
+                }else if(clickNum=='下一页'){
+                	flag<nodes.length-2?++flag:flag;
+                	infoUpdate(obj,flag,paging);
+                }else{
+                	flag=clickNum;
+                	infoUpdate(obj,flag,paging);
+                }
+            }
+        })(i);
+    }
+}
+// 更新局部页面
+function infoUpdate(obj,flag,paging) {
+	var lists,min,max,list=0,maxLength;
+    lists=document.getElementById('show').getElementsByTagName('div');
+    min=(flag-1)*paging;
+    max=flag*paging;
+    for(var i=min;i<max;i++){
+    	maxLength=min+list;
+    	if(maxLength>=obj.length){
+    		lists[list].innerHTML='';
+    	}else{
+    		lists[list].innerHTML="名称："+obj[i].name+",年龄"+obj[i].age;
+    	}
+    	list+=1;
+    }
+}  
+</script>
+</html>
